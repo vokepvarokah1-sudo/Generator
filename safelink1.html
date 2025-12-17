@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Safelink 1 - Continue Download</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  color: #fff;
+  font-family: "Poppins", sans-serif;
+  min-height: 100vh;
+  padding: 20px 10px;
+}
+
+.content-wrapper { max-width: 900px; margin: 0 auto; }
+
+/* Ad Container */
+.ad-container {
+  background: rgba(30, 30, 60, 0.8);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  margin: 25px 0;
+  border-radius: 16px;
+  border: 2px solid rgba(99, 102, 241, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.ad-label {
+  color: #a5b4fc;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ad-label::before {
+  content: "📢";
+  font-size: 16px;
+}
+
+.ad-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 250px;
+  background: rgba(20, 20, 40, 0.5);
+  border-radius: 12px;
+  padding: 15px;
+}
+
+.countdown-timer {
+  margin-top: 15px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.countdown-timer.completed {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  animation: pulseGreen 1.5s infinite;
+}
+
+@keyframes pulseGreen {
+  0%, 100% { box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4); }
+  50% { box-shadow: 0 4px 25px rgba(56, 239, 125, 0.7); }
+}
+
+.header-section {
+  text-align: center;
+  margin: 30px 0;
+  padding: 30px 20px;
+  background: rgba(30, 30, 60, 0.6);
+  border-radius: 16px;
+  border: 2px solid rgba(139, 92, 246, 0.3);
+}
+
+.header-section h1 {
+  font-size: 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.header-section p {
+  color: #cbd5e1;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.instruction-box {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+  padding: 25px;
+  border-radius: 16px;
+  margin: 25px 0;
+  border-left: 5px solid #8b5cf6;
+  backdrop-filter: blur(10px);
+}
+
+.instruction-box h3 {
+  color: #c4b5fd;
+  margin-bottom: 12px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.instruction-box p {
+  color: #e0e7ff;
+  line-height: 1.8;
+  font-size: 15px;
+}
+
+/* Timer Buttons */
+.timer-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 20px;
+  margin: 40px 0;
+  padding: 30px 20px;
+  background: rgba(30, 30, 60, 0.6);
+  border-radius: 16px;
+}
+
+.timer-btn {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  border: 2px solid #60a5fa;
+  color: #fff;
+  padding: 25px 15px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.timer-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.timer-btn:hover::before { left: 100%; }
+.timer-btn:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.5);
+  border-color: #93c5fd;
+}
+.timer-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.timer-btn.active {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  border-color: #34d399;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); }
+  50% { box-shadow: 0 8px 40px rgba(16, 185, 129, 0.7); }
+}
+
+/* Overlay */
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 9999;
+  overflow-y: auto;
+  backdrop-filter: blur(10px);
+}
+
+.overlay-content {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.overlay-content h3 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.overlay button {
+  margin-top: 30px;
+  padding: 15px 40px;
+  background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+  border: none;
+  color: #fff;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s;
+  box-shadow: 0 4px 20px rgba(236, 72, 153, 0.4);
+}
+
+.overlay button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 30px rgba(236, 72, 153, 0.6);
+}
+
+.overlay button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="content-wrapper">
+  <div class="header-section">
+    <h1>⏳ Continue to Download</h1>
+    <p>Mohon tunggu dan lihat iklan sponsor kami untuk melanjutkan download</p>
+  </div>
+
+  <div class="ad-container" id="adContainer1">
+    <div class="ad-label">Sponsor Advertisement</div>
+    <div class="ad-content">
+      <script>atOptions={'key':'fe0c4ae1791e506f7b1558972b878705','format':'iframe','height':250,'width':300,'params':{}};</script>
+      <script src="//www.highperformanceformat.com/fe0c4ae1791e506f7b1558972b878705/invoke.js"></script>
+    </div>
+    <div class="countdown-timer" id="countdown1">
+      <span class="icon">⏱️</span><span>Tunggu <strong id="timer1">10</strong> detik</span>
+    </div>
+  </div>
+
+  <div class="instruction-box">
+    <h3>📌 Cara Melanjutkan:</h3>
+    <p>1. Tunggu hingga semua timer iklan selesai<br>
+       2. Pilih salah satu tombol di bawah<br>
+       3. Salah satu tombol akan membawa Anda ke langkah berikutnya!</p>
+  </div>
+
+  <div class="ad-container" id="adContainer2">
+    <div class="ad-label">Featured Content</div>
+    <div class="ad-content">
+      <script async data-cfasync="false" src="//pl28014399.effectivegatecpm.com/d766b94dacbdcb1a47c99b9f9bdd27a8/invoke.js"></script>
+      <div id="container-d766b94dacbdcb1a47c99b9f9bdd27a8"></div>
+    </div>
+    <div class="countdown-timer" id="countdown2">
+      <span class="icon">⏱️</span><span>Tunggu <strong id="timer2">12</strong> detik</span>
+    </div>
+  </div>
+
+  <div class="timer-container" id="timers"></div>
+
+  <div class="ad-container" id="adContainer3">
+    <div class="ad-label">Partner Advertisement</div>
+    <div class="ad-content">
+      <script>atOptions={'key':'fe0c4ae1791e506f7b1558972b878705','format':'iframe','height':250,'width':300,'params':{}};</script>
+      <script src="//www.highperformanceformat.com/fe0c4ae1791e506f7b1558972b878705/invoke.js"></script>
+    </div>
+    <div class="countdown-timer" id="countdown3">
+      <span class="icon">⏱️</span><span>Tunggu <strong id="timer3">8</strong> detik</span>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="adOverlay">
+  <div class="overlay-content">
+    <h3>🎯 Iklan Sponsor</h3>
+    <p style="color:#cbd5e1;margin-bottom:20px;">Terima kasih telah mendukung kami dengan melihat iklan ini</p>
+    <script>atOptions={'key':'fe0c4ae1791e506f7b1558972b878705','format':'iframe','height':250,'width':300,'params':{}};</script>
+    <script src="//www.highperformanceformat.com/fe0c4ae1791e506f7b1558972b878705/invoke.js"></script>
+    <button id="closeOverlayBtn" disabled>
+      <span class="loading"></span> Tunggu <span id="overlayTimer">5</span> detik
+    </button>
+  </div>
+</div>
+
+<script src='//pl28014407.effectivegatecpm.com/52/62/5a/52625a84e5cc480ed8f5abfb3b53e58a.js'></script>
+<script src='//pl28014410.effectivegatecpm.com/77/6b/17/776b17db92afc5094913dfbdb3d9d036.js'></script>
+
+<script>
+const times = [10, 12, 15];
+const correctIndex = Math.floor(Math.random() * times.length);
+const timersDiv = document.getElementById("timers");
+const encoded = location.hash.split('=')[1];
+const smartLink = "https://www.effectivegatecpm.com/dsb6nckr?key=0b69c9d0a8b1cf8e8083fda807b5ad27";
+
+let ad1Done=false,ad2Done=false,ad3Done=false,allAdsViewed=false;
+
+function runCountdown(id,time,callback){
+  let t=time;
+  const el=document.getElementById(id);
+  const num=el.querySelector("strong");
+  const interval=setInterval(()=>{
+    t--; num.textContent=t;
+    if(t<=0){
+      clearInterval(interval);
+      el.innerHTML='<span class="icon">✅</span><span>Selesai!</span>';
+      el.classList.add('completed');
+      callback();
+    }
+  },1000);
+}
+
+runCountdown("countdown1",10,()=>{ad1Done=true;checkAllAds();});
+runCountdown("countdown2",12,()=>{ad2Done=true;checkAllAds();});
+runCountdown("countdown3",8,()=>{ad3Done=true;checkAllAds();});
+
+function checkAllAds(){
+  if(ad1Done&&ad2Done&&ad3Done&&!allAdsViewed){
+    allAdsViewed=true;
+    enableTimerButtons();
+  }
+}
+
+function enableTimerButtons(){
+  times.forEach((time,i)=>{
+    const btn=document.createElement("button");
+    btn.className="timer-btn";
+    btn.textContent=`${time} detik`;
+    btn.onclick=()=>startTimer(btn,time,i);
+    timersDiv.appendChild(btn);
+  });
+}
+
+function startTimer(btn,time,i){
+  if(btn.classList.contains("running"))return;
+  btn.classList.add("running");
+  let remaining=time;
+  const interval=setInterval(()=>{
+    remaining--;
+    btn.textContent=`${remaining}s`;
+    if(remaining<=0){
+      clearInterval(interval);
+      btn.textContent="BUKA";
+      btn.classList.add('active');
+      btn.onclick=()=>{
+        if(i===correctIndex){
+          window.location.href=`safelink2.html#dl=${encoded}`;
+        }else{
+          showOverlay();
+          window.open(smartLink,"_blank");
+          btn.textContent="❌ Belum Beruntung";
+          btn.style.background="linear-gradient(135deg,#dc2626 0%,#b91c1c 100%)";
+          btn.style.borderColor="#ef4444";
+          btn.classList.remove('active');
+        }
+      };
+    }
+  },1000);
+}
+
+function showOverlay(){
+  document.getElementById("adOverlay").style.display="block";
+  let overlayTimer=5;
+  const closeBtn=document.getElementById('closeOverlayBtn');
+  const overlayInterval=setInterval(()=>{
+    overlayTimer--;
+    document.getElementById('overlayTimer').textContent=overlayTimer;
+    if(overlayTimer<=0){
+      clearInterval(overlayInterval);
+      closeBtn.disabled=false;
+      closeBtn.innerHTML='✅ Tutup Iklan';
+      closeBtn.style.background='linear-gradient(135deg,#10b981 0%,#059669 100%)';
+    }
+  },1000);
+}
+
+function closeOverlay(){
+  document.getElementById("adOverlay").style.display="none";
+}
+
+document.getElementById('closeOverlayBtn').onclick=closeOverlay;
+</script>
+</body>
+</html>
