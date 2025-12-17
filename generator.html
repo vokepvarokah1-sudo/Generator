@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Dual Generator - Player & Safelink</title>
+<style>
+:root {
+  --bg-dark: #0f0f23;
+  --bg-panel: #1a1a2e;
+  --text: #e0e0e0;
+  --accent: #00d9ff;
+  --accent-hover: #00b8d4;
+  --purple: #a855f7;
+  --purple-hover: #9333ea;
+  --green: #10b981;
+  --orange: #f59e0b;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 750px;
+  background: var(--bg-panel);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  font-size: 32px;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #94a3b8;
+  margin-bottom: 35px;
+  font-size: 14px;
+}
+
+.mode-selector {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+  background: #0f1419;
+  padding: 8px;
+  border-radius: 12px;
+  border: 2px solid #334155;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.mode-btn.active {
+  background: linear-gradient(135deg, var(--purple) 0%, #ec4899 100%);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+}
+
+.mode-btn:hover:not(.active) {
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+.info-box {
+  background: rgba(168, 85, 247, 0.1);
+  border-left: 4px solid var(--purple);
+  padding: 15px 20px;
+  margin-bottom: 30px;
+  border-radius: 8px;
+}
+
+.info-box h3 {
+  color: var(--purple);
+  font-size: 14px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-box p {
+  color: #cbd5e1;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.info-box.mode-2 {
+  background: rgba(245, 158, 11, 0.1);
+  border-left-color: var(--orange);
+}
+
+.info-box.mode-2 h3 {
+  color: var(--orange);
+}
+
+.mode-content {
+  display: none;
+}
+
+.mode-content.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+.input-group {
+  margin-bottom: 25px;
+}
+
+.input-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #e2e8f0;
+  font-size: 14px;
+}
+
+.input-group label .required {
+  color: #ef4444;
+  font-size: 16px;
+}
+
+.input-group label .optional {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #334155;
+  border-radius: 10px;
+  background: #0f1419;
+  color: var(--text);
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+}
+
+.input-group input::placeholder {
+  color: #64748b;
+}
+
+.input-hint {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+button.generate {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, var(--purple) 0%, #ec4899 100%);
+  color: #fff;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
+}
+
+button.generate:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px rgba(168, 85, 247, 0.6);
+}
+
+button.generate:active {
+  transform: translateY(0);
+}
+
+.result-section {
+  display: none;
+  margin-top: 30px;
+  padding-top: 30px;
+  border-top: 2px solid rgba(168, 85, 247, 0.2);
+}
+
+.result-box {
+  margin-bottom: 25px;
+}
+
+.result-box h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  color: var(--accent);
+  font-size: 16px;
+}
+
+.result-box textarea {
+  width: 100%;
+  height: 80px;
+  font-family: 'Courier New', monospace;
+  padding: 12px;
+  border-radius: 10px;
+  border: 2px solid #334155;
+  background: #0f1419;
+  color: var(--green);
+  resize: none;
+  font-size: 13px;
+}
+
+.result-box textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.copy-btn {
+  width: 100%;
+  background: var(--accent);
+  color: #000;
+  margin-top: 8px;
+  padding: 12px;
+  font-size: 14px;
+  box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3);
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.copy-btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(0, 217, 255, 0.5);
+}
+
+.copy-btn.copied {
+  background: var(--green);
+  color: #fff;
+}
+
+.gist-preview {
+  background: rgba(16, 185, 129, 0.1);
+  border-left: 4px solid var(--green);
+  padding: 15px 20px;
+  margin-top: 30px;
+  border-radius: 8px;
+}
+
+.gist-preview h3 {
+  color: var(--green);
+  font-size: 14px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gist-preview pre {
+  background: #0f1419;
+  padding: 15px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 12px;
+  color: #94a3b8;
+  border: 1px solid #334155;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-section.show {
+  display: block;
+  animation: fadeIn 0.4s ease;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🎬 Dual Generator</h1>
+  <p class="subtitle">Generate Player Embed & Safelink Download dalam 1 Klik</p>
+
+  <!-- Mode Selector -->
+  <div class="mode-selector">
+    <button class="mode-btn active" data-mode="1">
+      📹 Mode 1: Player + Download
+    </button>
+    <button class="mode-btn" data-mode="2">
+      📥 Mode 2: Download Only
+    </button>
+  </div>
+
+  <!-- MODE 1: Custom Player (CDN Direct) -->
+  <div class="mode-content active" id="mode-1">
+    <div class="info-box">
+      <h3>💡 Mode 1: Custom Player</h3>
+      <p>
+        Untuk video CDN direct (.mp4, .webm). Video akan diputar menggunakan <strong>custom player Anda</strong> dengan iklan agresif.
+      </p>
+    </div>
+
+    <div class="input-group">
+      <label>
+        🎥 Link Video (.mp4)
+        <span class="required">*</span>
+      </label>
+      <input 
+        type="text" 
+        id="video-link-1" 
+        placeholder="https://cdn.example.com/video.mp4">
+      <div class="input-hint">
+        💡 Link video yang akan diputar di custom player
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>
+        💬 Link Subtitle (.vtt)
+        <span class="optional">(Opsional)</span>
+      </label>
+      <input 
+        type="text" 
+        id="sub-link-1" 
+        placeholder="https://cdn.example.com/subtitle.vtt">
+      <div class="input-hint">
+        💡 Kosongkan jika tidak ada subtitle
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>
+        📥 Link Download
+        <span class="required">*</span>
+      </label>
+      <input 
+        type="text" 
+        id="download-link-1" 
+        placeholder="https://cdn.example.com/video.mp4">
+      <div class="input-hint">
+        💡 Link file yang akan didownload (bisa sama dengan video atau berbeda)
+      </div>
+    </div>
+
+    <button class="generate" onclick="generateMode1()">⚡ Generate Links</button>
+  </div>
+
+  <!-- MODE 2: Download-Only Generator -->
+  <div class="mode-content" id="mode-2">
+    <div class="info-box mode-2">
+      <h3>💡 Mode 2: Download-Only Generator</h3>
+      <p>
+        Hanya untuk generate <strong>link safelink download</strong>. Link embed Anda tulis manual di Gist (untuk Doodstream, Streamtape, dll).
+      </p>
+    </div>
+
+    <div class="input-group">
+      <label>
+        📥 Link Download
+        <span class="required">*</span>
+      </label>
+      <input 
+        type="text" 
+        id="download-link-2" 
+        placeholder="https://doodstream.com/d/abc123xyz">
+      <div class="input-hint">
+        💡 Link download yang akan dibungkus safelink gate
+      </div>
+    </div>
+
+    <button class="generate" onclick="generateMode2()">⚡ Generate Safelink</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="result-section" id="result-section">
+    <div class="result-box">
+      <h3 id="result-play-label">▶️ Link Player Embed</h3>
+      <textarea id="play-result" readonly></textarea>
+      <button class="copy-btn" data-target="play-result">📋 Copy Play Link</button>
+    </div>
+
+    <div class="result-box">
+      <h3>📥 Link Safelink Download</h3>
+      <textarea id="safelink-result" readonly></textarea>
+      <button class="copy-btn" data-target="safelink-result">📋 Copy Safelink</button>
+    </div>
+
+    <div class="gist-preview">
+      <h3>📄 Preview JSON untuk Gist:</h3>
+      <pre id="gist-preview"></pre>
+    </div>
+  </div>
+</div>
+
+<script>
+// Base URLs - GANTI DENGAN URL REPO ANDA
+const BASE_PLAYER_URL = window.location.origin + '/player.html';
+const BASE_SAFELINK_URL = window.location.origin + '/safelink1.html';
+
+// Mode Switcher
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const mode = this.getAttribute('data-mode');
+    
+    // Update button states
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    
+    // Update content
+    document.querySelectorAll('.mode-content').forEach(c => c.classList.remove('active'));
+    document.getElementById(`mode-${mode}`).classList.add('active');
+    
+    // Hide results
+    document.getElementById('result-section').classList.remove('show');
+  });
+});
+
+// MODE 1: Custom Player
+function generateMode1() {
+  const videoLink = document.getElementById('video-link-1').value.trim();
+  const subLink = document.getElementById('sub-link-1').value.trim();
+  const downloadLink = document.getElementById('download-link-1').value.trim();
+
+  // Validasi
+  if (!videoLink) {
+    alert('❌ Link video wajib diisi!');
+    return;
+  }
+
+  if (!downloadLink) {
+    alert('❌ Link download wajib diisi!');
+    return;
+  }
+
+  // Generate Player URL
+  const playerParams = new URLSearchParams();
+  playerParams.set('s', videoLink);
+  if (subLink) playerParams.set('sub', subLink);
+  const playURL = BASE_PLAYER_URL + '?' + playerParams.toString();
+
+  // Generate Safelink URL
+  const encodedDownload = btoa(downloadLink);
+  const safelinkURL = BASE_SAFELINK_URL + '#dl=' + encodedDownload;
+
+  // Generate Gist JSON
+  const gistJSON = {
+    "id": "v" + Date.now().toString().slice(-6),
+    "play": playURL,
+    "download": safelinkURL,
+    "note": "Mode 1: Custom Player - " + new Date().toISOString(),
+    "type": "direct"
+  };
+
+  displayResults(playURL, safelinkURL, gistJSON, "▶️ Link Player Embed (Custom)");
+}
+
+// MODE 2: Download-Only Generator
+function generateMode2() {
+  const downloadLink = document.getElementById('download-link-2').value.trim();
+
+  // Validasi
+  if (!downloadLink) {
+    alert('❌ Link download wajib diisi!');
+    return;
+  }
+
+  // Generate Safelink URL
+  const encodedDownload = btoa(downloadLink);
+  const safelinkURL = BASE_SAFELINK_URL + '#dl=' + encodedDownload;
+
+  // Generate Gist JSON template (user tulis manual untuk "play")
+  const gistJSON = {
+    "id": "v" + Date.now().toString().slice(-6),
+    "play": "TULIS_MANUAL_EMBED_URL_DISINI",
+    "download": safelinkURL,
+    "note": "Mode 2: Download-Only - " + new Date().toISOString(),
+    "type": "embed"
+  };
+
+  displayResults(null, safelinkURL, gistJSON, "📥 Link Safelink Download");
+}
+
+// Display Results
+function displayResults(playURL, safelinkURL, gistJSON, playLabel) {
+  const resultSection = document.getElementById('result-section');
+  const playBox = resultSection.querySelector('.result-box:first-child');
+  
+  // Jika Mode 2 (playURL = null), sembunyikan play result box
+  if (playURL === null) {
+    playBox.style.display = 'none';
+  } else {
+    playBox.style.display = 'block';
+    document.getElementById('result-play-label').textContent = playLabel;
+    document.getElementById('play-result').value = playURL;
+  }
+  
+  document.getElementById('safelink-result').value = safelinkURL;
+  document.getElementById('gist-preview').textContent = JSON.stringify(gistJSON, null, 2);
+
+  resultSection.classList.add('show');
+
+  setTimeout(() => {
+    resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
+}
+
+// Copy buttons
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const targetId = this.getAttribute('data-target');
+    const target = document.getElementById(targetId);
+    
+    target.select();
+    navigator.clipboard.writeText(target.value).then(() => {
+      const originalText = this.textContent;
+      this.textContent = '✅ Tersalin!';
+      this.classList.add('copied');
+      
+      setTimeout(() => {
+        this.textContent = originalText;
+        this.classList.remove('copied');
+      }, 2000);
+    }).catch(err => {
+      alert('❌ Gagal menyalin: ' + err);
+    });
+  });
+});
+</script>
+</body>
+</html>
