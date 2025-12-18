@@ -4,51 +4,46 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
-<title>Streaming Player Pro</title>
+<title>Streaming Player</title>
 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css"/>
 <style>
-html, body {
-  margin: 0; padding: 0; width: 100%; height: 100%;
-  background: #000; font-family: Arial, sans-serif; overflow: hidden;
-}
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background: #000; overflow: hidden;
+  }
 
-.player-container {
-  position: relative; width: 100%; height: 100%;
-  display: flex; align-items: center; justify-content: center;
-}
+  .player-wrapper {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+  }
 
-/* Overlay yang lebih pintar untuk Fullscreen */
-#ad-overlay {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: calc(100% - 50px); /* Menyisakan sedikit area kontrol jika perlu */
-  z-index: 1001; /* Sangat tinggi agar di atas fullscreen */
-  cursor: pointer;
-  background: rgba(0,0,0,0);
-  display: block;
-}
+  /* Overlay transparan */
+  .ad-overlay-layer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 85%; /* Area klik iklan (tidak menutupi kontrol bawah) */
+    z-index: 10;
+    cursor: pointer;
+    background: transparent;
+    display: block;
+  }
 
-#video-player { width: 100%; height: 100%; object-fit: contain; }
+  #video-player { width: 100%; height: 100%; }
 
-.plyr--fullscreen-active #ad-overlay {
-  height: 100% !important; /* Pastikan menutupi layar saat fullscreen */
-}
-
-/* Custom Download Button */
-.plyr__controls #custom-download-btn {
-  display: inline-flex !important;
-  align-items: center; justify-content: center;
-  background: #00b3ff !important; color: white !important;
-  font-size: 14px; padding: 8px 12px !important;
-  border-radius: 3px; cursor: pointer; margin-left: 4px;
-}
+  .plyr__controls #custom-download-btn {
+    display: inline-flex !important;
+    align-items: center; justify-content: center;
+    background: #00b3ff !important; color: white !important;
+    font-size: 14px; padding: 8px 12px !important;
+    border-radius: 3px; cursor: pointer; margin-left: 4px;
+  }
 </style>
 </head>
 <body>
 
-<div class="player-container" id="main-wrapper">
+<div class="player-wrapper">
   <video id="video-player" playsinline controls controlsList="nodownload"></video>
-  <div id="ad-overlay"></div>
 </div>
 
 <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
@@ -60,16 +55,17 @@ const SMARTLINK = "https://www.effectivegatecpm.com/dsb6nckr?key=0b69c9d0a8b1cf8
 
 if (videoSource) {
   const video = document.getElementById('video-player');
-  const overlay = document.getElementById('ad-overlay');
-  const wrapper = document.getElementById('main-wrapper');
+  let lastAdTime = 0; // Menyimpan waktu terakhir iklan dibuka
+  const adCooldown = 3000; // Jeda 3 detik (dalam milidetik)
 
-  // Masukkan source video
+  const overlay = document.createElement('div');
+  overlay.className = 'ad-overlay-layer';
+
   const src = document.createElement('source');
   src.src = videoSource;
   src.type = 'video/mp4';
   video.appendChild(src);
 
-  // Inisialisasi Plyr
   const player = new Plyr(video, {
     autoplay: false,
     muted: true,
@@ -77,43 +73,43 @@ if (videoSource) {
     disableContextMenu: true,
   });
 
-  // Fungsi memicu iklan
-  function triggerAd() {
-    window.open(SMARTLINK, '_blank');
-    overlay.style.display = 'none';
+  // Fungsi Iklan dengan Logika Waktu
+  function openAd() {
+    const currentTime = new Date().getTime();
+    
+    // Cek apakah sudah lewat 3 detik sejak iklan terakhir
+    if (currentTime - lastAdTime > adCooldown) {
+      window.open(SMARTLINK, '_blank');
+      lastAdTime = currentTime; // Update waktu terakhir klik
+    }
+    
+    overlay.style.display = 'none'; 
     player.play();
   }
 
-  // Klik pada overlay memicu iklan
-  overlay.addEventListener('click', (e) => {
-    e.stopPropagation();
-    triggerAd();
-  });
+  overlay.addEventListener('click', openAd);
 
-  // AGAR BERULANG: Saat video dipause, munculkan kembali overlay iklan
-  player.on('pause', () => {
-    overlay.style.display = 'block';
-  });
-
-  // Tetap mute secara default
   player.on('ready', () => {
     player.muted = true;
     player.volume = 0;
-    
-    // Masukkan overlay ke dalam elemen plyr agar ikut masuk ke mode fullscreen
     const plyrContainer = document.querySelector('.plyr');
     plyrContainer.appendChild(overlay);
-    
     addCustomButton();
   });
 
-  // Logika Tambahan: Jika user klik area video saat sedang play (untuk iklan berulang tanpa pause)
-  // Hapus komentar kode dibawah jika ingin SETIAP klik saat play juga buka iklan:
-  /*
-  player.on('play', () => {
-     setTimeout(() => { overlay.style.display = 'block'; }, 2000); 
+  // Saat pause, cek apakah perlu menampilkan overlay iklan kembali
+  player.on('pause', () => {
+    const currentTime = new Date().getTime();
+    // Hanya munculkan overlay jika cooldown sudah selesai
+    if (currentTime - lastAdTime > adCooldown) {
+      overlay.style.display = 'block';
+    }
   });
-  */
+
+  // Tambahan: Pastikan overlay muncul kembali jika video berhenti/selesai
+  player.on('ended', () => {
+    overlay.style.display = 'block';
+  });
 
   function addCustomButton() {
     let controls = document.querySelector('.plyr__controls');
