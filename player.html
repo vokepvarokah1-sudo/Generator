@@ -14,8 +14,34 @@ html, body {
   height: 100%;
   background: #000;
   font-family: Arial, sans-serif;
+  overflow: hidden;
 }
+
+/* Wrapper untuk kontrol aspect ratio */
+.player-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
 #video-player {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Plyr container */
+.plyr {
+  width: 100%;
+  height: 100%;
+}
+
+/* Video element fit */
+.plyr video {
+  object-fit: contain !important;
   width: 100%;
   height: 100%;
 }
@@ -49,7 +75,9 @@ video::-webkit-media-controls-enclosure {
 </head>
 <body>
 
-<video id="video-player" playsinline controls controlsList="nodownload"></video>
+<div class="player-wrapper">
+  <video id="video-player" playsinline controls controlsList="nodownload"></video>
+</div>
 
 <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 <script>
@@ -94,11 +122,10 @@ if (!videoSource) {
 
   // Fungsi menambahkan tombol custom Download via Safelink
   function addCustomButton() {
-    // Coba beberapa selector berbeda
     let controls = document.querySelector('.plyr__controls');
     
     if (!controls) {
-      console.warn('❌ Element .plyr__controls tidak ditemukan');
+      console.warn('⚠️ Element .plyr__controls tidak ditemukan');
       return false;
     }
 
@@ -122,7 +149,7 @@ if (!videoSource) {
     customBtn.onclick = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      console.log('🔽 Tombol download diklik');
+      console.log('📽 Tombol download diklik');
       const encoded = btoa(videoSource);
       window.open(`safelink1.html#dl=${encoded}`, '_blank');
     };
