@@ -4,33 +4,36 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
-<title>Streaming Player</title>
+<title>Streaming Player Final</title>
 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css"/>
 <style>
   html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
-  .player-wrapper { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+  .player-wrapper { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; }
 
-  /* Overlay transparan untuk iklan */
+  /* Overlay transparan agar tidak menutupi kontrol bawah (height 85%) */
   .ad-overlay-layer {
     position: absolute;
     top: 0; left: 0;
     width: 100%;
-    height: 85%; /* Area tengah untuk iklan */
+    height: 85%; 
     z-index: 10;
     cursor: pointer;
     background: transparent;
+    display: block;
   }
 
-  #video-player { width: 100%; height: 100%; }
+  #video-player { width: 100%; height: 100%; object-fit: contain; }
 
-  /* Tombol Download */
+  /* Tombol Download Custom */
   .plyr__controls #custom-download-btn {
     display: inline-flex !important;
     align-items: center; justify-content: center;
     background: #00b3ff !important; color: white !important;
     font-size: 14px; padding: 8px 12px !important;
     border-radius: 3px; cursor: pointer; margin-left: 4px;
+    transition: background 0.3s;
   }
+  .plyr__controls #custom-download-btn:hover { background: #0095d9 !important; }
 </style>
 </head>
 <body>
@@ -46,28 +49,48 @@ const videoSource = urlParams.get('s');
 const subSource = urlParams.get('sub');
 const SMARTLINK = "https://www.effectivegatecpm.com/dsb6nckr?key=0b69c9d0a8b1cf8e8083fda807b5ad27";
 
-if (videoSource) {
+if (!videoSource) {
+  alert('Video tidak ditemukan!');
+} else {
   const video = document.getElementById('video-player');
   let lastAdTime = 0;
-  const adCooldown = 3000; 
+  const adCooldown = 3000; // Iklan aktif setiap 3 detik
 
-  const overlay = document.createElement('div');
-  overlay.className = 'ad-overlay-layer';
-
+  // Tambahkan Source Video
   const src = document.createElement('source');
   src.src = videoSource;
   src.type = 'video/mp4';
   video.appendChild(src);
 
-  // Inisialisasi Plyr
+  // Tambahkan Subtitle jika ada di URL (?sub=...)
+  if (subSource) {
+    const track = document.createElement('track');
+    track.kind = 'subtitles';
+    track.src = subSource;
+    track.srclang = 'id';
+    track.label = 'Bahasa Indonesia';
+    track.default = true;
+    video.appendChild(track);
+  }
+
+  // Buat element overlay secara dinamis
+  const overlay = document.createElement('div');
+  overlay.className = 'ad-overlay-layer';
+
+  // Inisialisasi Plyr dengan fitur lengkap (Speed + Mute + Controls)
   const player = new Plyr(video, {
     autoplay: false,
-    muted: true, // HANYA default saat load pertama kali
-    controls: ['play-large', 'play', 'mute', 'volume', 'rewind', 'fast-forward', 'progress', 'current-time', 'duration', 'captions', 'settings', 'fullscreen'],
+    muted: true, // Default mute saat pertama kali load
+    controls: [
+      'play-large', 'play', 'mute', 'volume', 'rewind', 'fast-forward', 
+      'progress', 'current-time', 'duration', 'captions', 'settings', 'fullscreen'
+    ],
+    settings: ['speed', 'captions'],
+    speed: { selected: 1, options: [0.5, 1, 1.5, 2, 3] },
     disableContextMenu: true,
   });
 
-  // Fungsi Iklan
+  // Logika Iklan
   function openAd() {
     const currentTime = new Date().getTime();
     if (currentTime - lastAdTime > adCooldown) {
@@ -75,20 +98,23 @@ if (videoSource) {
       lastAdTime = currentTime;
     }
     overlay.style.display = 'none'; 
-    player.play(); // Menjalankan video tanpa memaksa mute lagi
+    player.play(); 
   }
 
   overlay.addEventListener('click', openAd);
 
   player.on('ready', () => {
-    // Tambahkan kembali slider volume agar user bisa mengatur suara
+    // Pastikan volume internal tetap 1 agar saat unmute suara langsung keluar
     player.volume = 1; 
     
+    // Masukkan overlay ke dalam kontainer Plyr agar support Fullscreen
     const plyrContainer = document.querySelector('.plyr');
     plyrContainer.appendChild(overlay);
+    
     addCustomButton();
   });
 
+  // Munculkan iklan lagi saat pause (dengan cooldown)
   player.on('pause', () => {
     const currentTime = new Date().getTime();
     if (currentTime - lastAdTime > adCooldown) {
@@ -96,20 +122,31 @@ if (videoSource) {
     }
   });
 
+  // Tambah Tombol Download Custom
   function addCustomButton() {
     let controls = document.querySelector('.plyr__controls');
     if (!controls || document.getElementById('custom-download-btn')) return;
+    
     const customBtn = document.createElement('button');
     customBtn.id = 'custom-download-btn';
     customBtn.className = 'plyr__controls__item plyr__control';
+    customBtn.type = 'button';
+    customBtn.title = 'Download via Safelink';
     customBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18"><path d="M9 13l-4-4h3V3h2v6h3l-4 4zm-7 2h14v2H2v-2z" fill="currentColor"/></svg>';
+    
     customBtn.onclick = (e) => {
       e.stopPropagation();
-      window.open(`safelink1.html#dl=${btoa(videoSource)}`, '_blank');
+      const encoded = btoa(videoSource);
+      window.open(`safelink1.html#dl=${encoded}`, '_blank');
     };
+
     const last = controls.querySelector('.plyr__controls__item:last-child');
     if (last) controls.insertBefore(customBtn, last);
+    else controls.appendChild(customBtn);
   }
+
+  // Proteksi klik kanan
+  video.addEventListener('contextmenu', (e) => e.preventDefault());
 }
 </script>
 </body>
