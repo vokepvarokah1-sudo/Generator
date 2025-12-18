@@ -372,14 +372,14 @@ button.generate:active {
     <div class="input-group">
       <label>
         📥 Link Download
-        <span class="required">*</span>
+        <span class="optional">(Opsional)</span>
       </label>
       <input 
         type="text" 
         id="download-link-1" 
-        placeholder="https://cdn.example.com/video.mp4">
+        placeholder="Kosongkan jika sama dengan video">
       <div class="input-hint">
-        💡 Link file yang akan didownload (bisa sama dengan video atau berbeda)
+        💡 Kosongkan untuk pakai link video, atau isi jika berbeda
       </div>
     </div>
 
@@ -429,6 +429,7 @@ button.generate:active {
     <div class="gist-preview">
       <h3>📄 Preview JSON untuk Gist:</h3>
       <pre id="gist-preview"></pre>
+      <button class="copy-btn" data-target="gist-preview">📋 Copy JSON</button>
     </div>
   </div>
 </div>
@@ -460,7 +461,7 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
 function generateMode1() {
   const videoLink = document.getElementById('video-link-1').value.trim();
   const subLink = document.getElementById('sub-link-1').value.trim();
-  const downloadLink = document.getElementById('download-link-1').value.trim();
+  let downloadLink = document.getElementById('download-link-1').value.trim();
 
   // Validasi
   if (!videoLink) {
@@ -468,9 +469,10 @@ function generateMode1() {
     return;
   }
 
+  // Jika download kosong, pakai link video
   if (!downloadLink) {
-    alert('❌ Link download wajib diisi!');
-    return;
+    downloadLink = videoLink;
+    console.log('ℹ️ Download link kosong, menggunakan link video');
   }
 
   // Generate Player URL
@@ -551,8 +553,17 @@ document.querySelectorAll('.copy-btn').forEach(btn => {
     const targetId = this.getAttribute('data-target');
     const target = document.getElementById(targetId);
     
-    target.select();
-    navigator.clipboard.writeText(target.value).then(() => {
+    // Ambil text yang mau di-copy
+    let textToCopy;
+    if (target.tagName === 'PRE') {
+      // Untuk <pre> (JSON preview)
+      textToCopy = target.textContent;
+    } else {
+      // Untuk <textarea>
+      textToCopy = target.value;
+    }
+    
+    navigator.clipboard.writeText(textToCopy).then(() => {
       const originalText = this.textContent;
       this.textContent = '✅ Tersalin!';
       this.classList.add('copied');
