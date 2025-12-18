@@ -17,7 +17,6 @@ html, body {
   overflow: hidden;
 }
 
-/* Wrapper untuk kontrol aspect ratio */
 .player-wrapper {
   width: 100%;
   height: 100%;
@@ -33,13 +32,11 @@ html, body {
   object-fit: contain;
 }
 
-/* Plyr container */
 .plyr {
   width: 100%;
   height: 100%;
 }
 
-/* Video element fit */
 .plyr video {
   object-fit: contain !important;
   width: 100%;
@@ -64,7 +61,6 @@ html, body {
   background: #0095d9 !important;
 }
 
-/* Sembunyikan konteks menu download bawaan browser */
 video::-webkit-media-controls-download-button {
   display: none !important;
 }
@@ -76,7 +72,7 @@ video::-webkit-media-controls-enclosure {
 <body>
 
 <div class="player-wrapper">
-  <video id="video-player" playsinline controls controlsList="nodownload"></video>
+  <video id="video-player" playsinline muted controls controlsList="nodownload"></video>
 </div>
 
 <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
@@ -108,12 +104,21 @@ if (!videoSource) {
     video.appendChild(track);
   }
 
-  // Inisialisasi Plyr tanpa tombol download bawaan
+  // Inisialisasi Plyr
   const player = new Plyr(video, {
+    muted: true, // Auto mute saat pertama dimuat
     controls: [
-      'play-large','play','rewind','fast-forward',
-      'progress','current-time','duration',
-      'captions','settings','fullscreen'
+      'play-large',
+      'play',
+      'mute', // Hanya tombol mute (tanpa slider volume)
+      'rewind',
+      'fast-forward',
+      'progress',
+      'current-time',
+      'duration',
+      'captions',
+      'settings',
+      'fullscreen'
     ],
     settings: ['speed','captions'],
     speed: { selected: 1, options: [0.5,1,1.5,2,3] },
@@ -124,24 +129,13 @@ if (!videoSource) {
   function addCustomButton() {
     let controls = document.querySelector('.plyr__controls');
     
-    if (!controls) {
-      console.warn('⚠️ Element .plyr__controls tidak ditemukan');
-      return false;
-    }
-
-    // Hindari duplikasi
-    if (document.getElementById('custom-download-btn')) {
-      console.log('ℹ️ Tombol download sudah ada');
-      return true;
-    }
-
-    console.log('🔧 Membuat tombol download...');
+    if (!controls) return false;
+    if (document.getElementById('custom-download-btn')) return true;
 
     const customBtn = document.createElement('button');
     customBtn.id = 'custom-download-btn';
     customBtn.className = 'plyr__controls__item plyr__control';
     customBtn.type = 'button';
-    customBtn.setAttribute('data-plyr', 'download');
     customBtn.setAttribute('aria-label', 'Download via Safelink');
     customBtn.title = 'Download via Safelink';
     customBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18"><path d="M9 13l-4-4h3V3h2v6h3l-4 4zm-7 2h14v2H2v-2z" fill="currentColor"/></svg>';
@@ -149,75 +143,46 @@ if (!videoSource) {
     customBtn.onclick = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      console.log('📽 Tombol download diklik');
       const encoded = btoa(videoSource);
       window.open(`safelink1.html#dl=${encoded}`, '_blank');
     };
     
-    // Cari tempat untuk insert tombol
-    const rightControls = controls.querySelector('.plyr__controls__item:last-child');
-    
-    if (rightControls) {
-      controls.insertBefore(customBtn, rightControls);
-      console.log('✅ Tombol download berhasil ditambahkan sebelum elemen terakhir!');
+    // Masukkan tombol sebelum tombol fullscreen (biasanya elemen terakhir)
+    const lastControl = controls.querySelector('.plyr__controls__item:last-child');
+    if (lastControl) {
+      controls.insertBefore(customBtn, lastControl);
     } else {
       controls.appendChild(customBtn);
-      console.log('✅ Tombol download berhasil ditambahkan di akhir!');
     }
     
     return true;
   }
 
-  // Tambahkan observer untuk mendeteksi saat controls sudah siap
+  // Observer dan Event Ready
   const observer = new MutationObserver((mutations) => {
     const controls = document.querySelector('.plyr__controls');
     if (controls && !document.getElementById('custom-download-btn')) {
-      console.log('👀 Controls terdeteksi oleh observer');
-      if (addCustomButton()) {
-        observer.disconnect();
-      }
+      if (addCustomButton()) observer.disconnect();
     }
   });
 
-  // Mulai observe perubahan DOM
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
+  observer.observe(document.body, { childList: true, subtree: true });
 
-  // Event listener saat player sudah siap
   player.on('ready', () => {
-    console.log('▶️ Player ready');
+    // Pastikan volume tetap 1 secara internal agar saat user klik 'unmute', suara langsung terdengar
+    player.volume = 1; 
     
-    // Coba tambahkan tombol setelah delay
     setTimeout(() => {
-      console.log('⏱️ Mencoba menambahkan tombol...');
-      if (addCustomButton()) {
-        observer.disconnect(); // Stop observer jika berhasil
-      }
+      if (addCustomButton()) observer.disconnect();
     }, 100);
-    
-    // Backup dengan delay lebih lama
-    setTimeout(() => {
-      if (!document.getElementById('custom-download-btn')) {
-        console.log('⏱️ Percobaan kedua...');
-        if (addCustomButton()) {
-          observer.disconnect();
-        }
-      }
-    }, 1000);
   });
 
-  // Buka smartlink pada event utama
+  // Iklan Smartlink
   ['play','ratechange'].forEach(evt => {
     player.on(evt, () => window.open(SMARTLINK, '_blank'));
   });
 
-  // Disable right-click pada video
-  video.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-    return false;
-  });
+  video.addEventListener('contextmenu', (e) => e.preventDefault());
 }
 </script>
 
