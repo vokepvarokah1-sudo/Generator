@@ -56,6 +56,23 @@ body {
   padding: 15px;
 }
 
+.ad-placeholder {
+  text-align: center;
+  color: #94a3b8;
+  padding: 40px 20px;
+}
+
+.ad-placeholder h4 {
+  color: #cbd5e1;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.ad-placeholder p {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
 .countdown-timer {
   margin-top: 15px;
   padding: 12px 20px;
@@ -251,22 +268,6 @@ body {
 <body>
 
 <div class="content-wrapper">
-  <div class="header-section">
-    <h1>⏳ Continue to Download</h1>
-    <p>Mohon tunggu dan lihat iklan sponsor kami untuk melanjutkan download</p>
-  </div>
-
-  <div class="ad-container" id="adContainer1">
-    <div class="ad-label">Sponsor Advertisement</div>
-    <div class="ad-content">
-      <script>atOptions={'key':'fe0c4ae1791e506f7b1558972b878705','format':'iframe','height':250,'width':300,'params':{}};</script>
-      <script src="//www.highperformanceformat.com/fe0c4ae1791e506f7b1558972b878705/invoke.js"></script>
-    </div>
-    <div class="countdown-timer" id="countdown1">
-      <span class="icon">⏱️</span><span>Tunggu <strong id="timer1">10</strong> detik</span>
-    </div>
-  </div>
-
   <div class="instruction-box">
     <h3>📌 Cara Melanjutkan:</h3>
     <p>1. Tunggu hingga semua timer iklan selesai<br>
@@ -274,11 +275,32 @@ body {
        3. Salah satu tombol akan membawa Anda ke langkah berikutnya!</p>
   </div>
 
+  <!-- IKLAN SLOT 1 -->
+  <div class="ad-container" id="adContainer1">
+    <div class="ad-label">Sponsor Advertisement</div>
+    <div class="ad-content">
+      <!-- ==================== TARUH KODE IKLAN 1 DI SINI ==================== -->
+      <div class="ad-placeholder">
+        <h4>📺 Iklan Slot 1</h4>
+        <p>Ganti komentar ini dengan kode iklan Anda<br>(300x250 atau responsive)</p>
+      </div>
+      <!-- ==================================================================== -->
+    </div>
+    <div class="countdown-timer" id="countdown1">
+      <span class="icon">⏱️</span><span>Tunggu <strong id="timer1">10</strong> detik</span>
+    </div>
+  </div>
+
+  <!-- IKLAN SLOT 2 -->
   <div class="ad-container" id="adContainer2">
     <div class="ad-label">Featured Content</div>
     <div class="ad-content">
-      <script async data-cfasync="false" src="//pl28014399.effectivegatecpm.com/d766b94dacbdcb1a47c99b9f9bdd27a8/invoke.js"></script>
-      <div id="container-d766b94dacbdcb1a47c99b9f9bdd27a8"></div>
+      <!-- ==================== TARUH KODE IKLAN 2 DI SINI ==================== -->
+      <div class="ad-placeholder">
+        <h4>📺 Iklan Slot 2</h4>
+        <p>Ganti komentar ini dengan kode iklan Anda<br>(300x250 atau responsive)</p>
+      </div>
+      <!-- ==================================================================== -->
     </div>
     <div class="countdown-timer" id="countdown2">
       <span class="icon">⏱️</span><span>Tunggu <strong id="timer2">12</strong> detik</span>
@@ -287,11 +309,16 @@ body {
 
   <div class="timer-container" id="timers"></div>
 
+  <!-- IKLAN SLOT 3 -->
   <div class="ad-container" id="adContainer3">
     <div class="ad-label">Partner Advertisement</div>
     <div class="ad-content">
-      <script>atOptions={'key':'fe0c4ae1791e506f7b1558972b878705','format':'iframe','height':250,'width':300,'params':{}};</script>
-      <script src="//www.highperformanceformat.com/fe0c4ae1791e506f7b1558972b878705/invoke.js"></script>
+      <!-- ==================== TARUH KODE IKLAN 3 DI SINI ==================== -->
+      <div class="ad-placeholder">
+        <h4>📺 Iklan Slot 3</h4>
+        <p>Ganti komentar ini dengan kode iklan Anda<br>(300x250 atau responsive)</p>
+      </div>
+      <!-- ==================================================================== -->
     </div>
     <div class="countdown-timer" id="countdown3">
       <span class="icon">⏱️</span><span>Tunggu <strong id="timer3">8</strong> detik</span>
@@ -299,20 +326,30 @@ body {
   </div>
 </div>
 
+<!-- OVERLAY IKLAN -->
 <div class="overlay" id="adOverlay">
   <div class="overlay-content">
     <h3>🎯 Iklan Sponsor</h3>
     <p style="color:#cbd5e1;margin-bottom:20px;">Terima kasih telah mendukung kami dengan melihat iklan ini</p>
-    <script>atOptions={'key':'fe0c4ae1791e506f7b1558972b878705','format':'iframe','height':250,'width':300,'params':{}};</script>
-    <script src="//www.highperformanceformat.com/fe0c4ae1791e506f7b1558972b878705/invoke.js"></script>
+    
+    <!-- ==================== TARUH KODE IKLAN OVERLAY DI SINI ==================== -->
+    <div class="ad-placeholder">
+      <h4>📺 Iklan Overlay</h4>
+      <p>Ganti komentar ini dengan kode iklan Anda<br>(300x250 atau responsive)</p>
+    </div>
+    <!-- ========================================================================== -->
+    
     <button id="closeOverlayBtn" disabled>
       <span class="loading"></span> Tunggu <span id="overlayTimer">5</span> detik
     </button>
   </div>
 </div>
 
-<script src='//pl28014407.effectivegatecpm.com/52/62/5a/52625a84e5cc480ed8f5abfb3b53e58a.js'></script>
-<script src='//pl28014410.effectivegatecpm.com/77/6b/17/776b17db92afc5094913dfbdb3d9d036.js'></script>
+<!-- SCRIPT IKLAN EKSTERNAL (OPSIONAL) -->
+<!-- Jika ada script iklan yang perlu dimuat di bagian bawah, taruh di sini -->
+<!-- ==================== TARUH SCRIPT IKLAN EKSTERNAL DI SINI ==================== -->
+
+<!-- =================================================================================== -->
 
 <script>
 const times = [10, 12, 15];
